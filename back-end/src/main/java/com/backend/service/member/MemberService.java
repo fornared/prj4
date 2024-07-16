@@ -18,7 +18,42 @@ public class MemberService {
 
     public void add(Member member) {
         member.setPassword(passwordEncoder.encode(member.getPassword()));
-        System.out.println(member);
+
         mapper.insertMember(member);
+    }
+
+    public boolean validate(Member member) {
+        if (member.getEmail() == null
+                || member.getPassword() == null
+                || member.getName() == null
+                || member.getTel() == null
+                || member.getAddress() == null
+                || member.getGender() == null
+                || member.getBirth() == null) {
+            return false;
+        }
+        if (member.getEmail().isEmpty()
+                || member.getPassword().isEmpty()
+                || member.getName().isEmpty()
+                || member.getTel().isEmpty()
+                || member.getAddress().isEmpty()) {
+            return false;
+        }
+
+        String emailPattern = "[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*";
+
+        if (!member.getEmail().trim().matches(emailPattern)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkEmail(String email) {
+        if (mapper.selectByEmail(email.trim()) == null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
