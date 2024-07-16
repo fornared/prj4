@@ -1,14 +1,21 @@
-import { Box, Button } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { Box } from "@chakra-ui/react";
+import { Outlet } from "react-router-dom";
+import { Navbar } from "../component/Navbar.jsx";
 
 export function Home() {
-  const navigate = useNavigate();
-
   return (
-    <Box>
-      <Button onClick={() => navigate("/login")} colorScheme="blue">
-        로그인
-      </Button>
+    <Box mb={300}>
+      <Navbar />
+      <Box
+        border="1px solid black"
+        mx={{
+          base: 0,
+          lg: 200,
+        }}
+        mt={10}
+      >
+        <Outlet />
+      </Box>
     </Box>
   );
 }

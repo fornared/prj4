@@ -4,9 +4,16 @@ import com.backend.domain.member.Member;
 import com.backend.mapper.member.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -55,5 +62,41 @@ public class MemberService {
         } else {
             return false;
         }
+    }
+
+    public Map<String, Object> getToken(Member member) {
+        Map<String, Object> result = null;
+
+        Member dbMember = mapper.selectByEmail(member.getEmail());
+
+        System.out.println(dbMember);
+
+        if (dbMember != null) {
+            if (passwordEncoder.matches(member.getPassword(), dbMember.getPassword())) {
+                result = new HashMap<>();
+                String token = "";
+                Instant now = Instant.now();
+
+                List<String> authority = mapper.selectAuthorityByMemberId(dbMember.getId());
+
+                // String authorityString= authority.stream().collect(Collectors.joining(" "));
+                String authorityString = String.join(" ", authority);
+
+                JwtClaimsSet claims = JwtClaimsSet.builder()
+                        .issuer("self")
+                        .issuedAt(now)
+                        .expiresAt(now.plusSeconds(60 * 60 * 12))
+                        .subject(dbMember.getId().toString())
+                        .claim("scope", authorityString)
+                        .claim("name", dbMember.getName())
+                        .build();
+
+                token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+                result.put("token", token);
+            }
+        }
+
+        return result;
     }
 }

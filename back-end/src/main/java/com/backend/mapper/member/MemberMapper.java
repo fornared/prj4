@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface MemberMapper {
     @Insert("""
@@ -14,9 +16,16 @@ public interface MemberMapper {
     int insertMember(Member member);
 
     @Select("""
-            SELECT id
+            SELECT *
             FROM member
             WHERE email=#{email}
             """)
-    Integer selectByEmail(String email);
+    Member selectByEmail(String email);
+
+    @Select("""
+            SELECT name
+            FROM member_authority
+            WHERE member_id=#{memberId}
+            """)
+    List<String> selectAuthorityByMemberId(Integer memberId);
 }
