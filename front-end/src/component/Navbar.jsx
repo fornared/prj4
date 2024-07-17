@@ -30,6 +30,9 @@ export function Navbar() {
           로그인
         </Button>
       )}
+      {(account.isAdmin() || account.isManager()) && (
+        <Button onClick={() => navigate("/member/list")}>회원 목록</Button>
+      )}
     </Box>
   );
 }

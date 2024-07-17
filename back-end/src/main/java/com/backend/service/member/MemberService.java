@@ -3,6 +3,7 @@ package com.backend.service.member;
 import com.backend.domain.member.Member;
 import com.backend.mapper.member.MemberMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -91,6 +92,7 @@ public class MemberService {
                         .claim("name", dbMember.getName())
                         .build();
 
+
                 token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
                 result.put("token", token);
@@ -98,5 +100,21 @@ public class MemberService {
         }
 
         return result;
+    }
+
+    public List<Member> list() {
+        return mapper.selectAllMember();
+    }
+
+    public boolean hasAccess(Integer id, Authentication auth) {
+        boolean self = auth.getName().equals(id.toString());
+
+        boolean isAdminManager = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SCOPE_admin") || a.getAuthority().equals("SCOPE_manager"));
+
+        return self || isAdminManager;
+    }
+
+    public Member get(Integer id) {
+        return mapper.selectById(id);
     }
 }

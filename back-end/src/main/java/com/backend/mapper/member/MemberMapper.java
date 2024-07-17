@@ -28,4 +28,18 @@ public interface MemberMapper {
             WHERE member_id=#{memberId}
             """)
     List<String> selectAuthorityByMemberId(Integer memberId);
+
+    @Select("""
+            SELECT id, email, name, birth, inserted
+            FROM member
+            ORDER BY id ASC
+            """)
+    List<Member> selectAllMember();
+
+    @Select("""
+            SELECT id, email, name, tel, address, gender, birth, inserted
+            FROM member
+            WHERE id=#{id}
+            """)
+    Member selectById(Integer id);
 }
