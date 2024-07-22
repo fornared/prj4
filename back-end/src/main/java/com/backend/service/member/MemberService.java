@@ -5,6 +5,7 @@ import com.backend.mapper.member.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -70,8 +71,6 @@ public class MemberService {
 
         Member dbMember = mapper.selectByEmail(member.getEmail());
 
-        System.out.println(dbMember);
-
         if (dbMember != null) {
             if (passwordEncoder.matches(member.getPassword(), dbMember.getPassword())) {
                 result = new HashMap<>();
@@ -114,7 +113,44 @@ public class MemberService {
         return self || isAdminManager;
     }
 
+    public boolean hasAccess(Member member, Authentication auth) {
+        if (mapper.selectById(member.getId()) == null) {
+            return false;
+        }
+
+        return hasAccess(member.getId(), auth);
+    }
+
     public Member get(Integer id) {
         return mapper.selectById(id);
+    }
+
+    public Map<String, Object> edit(Member member, Authentication auth) {
+        if (member.getPassword() != null && !member.getPassword().isEmpty()) {
+            member.setPassword(passwordEncoder.encode(member.getPassword()));
+        } else {
+            member.setPassword(mapper.selectPasswordById(member.getId()));
+        }
+        mapper.updateMember(member);
+
+
+        String token = "";
+
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        Map<String, Object> claims = jwt.getClaims();
+        JwtClaimsSet.Builder jwtClaimsSetBuilder = JwtClaimsSet.builder();
+        claims.forEach(jwtClaimsSetBuilder::claim);
+
+        JwtClaimsSet jwtClaimsSet = jwtClaimsSetBuilder.build();
+        token = jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
+        return Map.of("token", token);
+    }
+
+    public boolean passwordCheck(Member member, Authentication auth) {
+        return passwordEncoder.matches(member.getPassword(), mapper.selectPasswordById(Integer.valueOf(auth.getName())));
+    }
+
+    public void deleteMember(Integer id) {
+        mapper.deleteMember(id);
     }
 }

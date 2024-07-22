@@ -21,6 +21,7 @@ export function Navbar() {
               duration: 2000,
               isClosable: true,
             });
+            navigate("/");
           }}
         >
           로그아웃
@@ -28,6 +29,11 @@ export function Navbar() {
       ) : (
         <Button onClick={() => navigate("/login")} colorScheme="blue">
           로그인
+        </Button>
+      )}
+      {account.isLoggedIn() && (
+        <Button onClick={() => navigate(`/member/${account.id}`)}>
+          내 정보
         </Button>
       )}
       {(account.isAdmin() || account.isManager()) && (

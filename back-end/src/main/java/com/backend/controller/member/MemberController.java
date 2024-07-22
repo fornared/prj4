@@ -62,4 +62,36 @@ public class MemberController {
         }
         return ResponseEntity.ok(member);
     }
+
+    @PostMapping("passwordCheck")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity passwordCheck(@RequestBody Member member, Authentication auth) {
+        if (service.passwordCheck(member, auth)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @PutMapping("edit")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity edit(@RequestBody Member member, Authentication auth) {
+        if (service.hasAccess(member, auth)) {
+            Map<String, Object> result = service.edit(member, auth);
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @DeleteMapping("delete")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity delete(@RequestBody Member member, Authentication auth) {
+        if (service.hasAccess(member, auth) && service.passwordCheck(member, auth)) {
+            service.deleteMember(member.getId());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
 }

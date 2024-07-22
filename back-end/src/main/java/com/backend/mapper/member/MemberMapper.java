@@ -1,9 +1,7 @@
 package com.backend.mapper.member;
 
 import com.backend.domain.member.Member;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -42,4 +40,24 @@ public interface MemberMapper {
             WHERE id=#{id}
             """)
     Member selectById(Integer id);
+
+    @Update("""
+            UPDATE member
+            SET password=#{password}, tel=#{tel}, address=#{address}
+            WHERE id=#{id}
+            """)
+    int updateMember(Member member);
+
+    @Select("""
+            SELECT password
+            FROM member
+            WHERE id=#{id}
+            """)
+    String selectPasswordById(Integer id);
+
+    @Delete("""
+            DELETE FROM member
+            WHERE id=#{id}
+            """)
+    int deleteMember(Integer id);
 }
