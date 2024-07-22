@@ -54,6 +54,13 @@ export function MemberSignup() {
         birth,
       })
       .then(() => {
+        toast({
+          status: "success",
+          description: "회원 가입이 완료되었습니다.",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
         navigate("/login");
       })
       .catch((err) => {

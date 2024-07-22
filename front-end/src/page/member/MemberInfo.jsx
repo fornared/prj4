@@ -7,6 +7,12 @@ import {
   FormLabel,
   Heading,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Radio,
   RadioGroup,
   Spinner,
@@ -16,13 +22,17 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { LoginContext } from "../../component/LoginProvider.jsx";
 
 export function MemberInfo() {
   const { id } = useParams();
   const [member, setMember] = useState(null);
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
+  const account = useContext(LoginContext);
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -60,6 +70,37 @@ export function MemberInfo() {
 
   if (member === null) {
     return <Spinner />;
+  }
+
+  function handleDelete() {
+    setIsLoading(true);
+    axios
+      .delete("/api/member/delete", { data: { id, password } })
+      .then(() => {
+        toast({
+          status: "success",
+          description: "회원 탈퇴 처리되었습니다.",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
+        account.logout();
+        navigate("/");
+      })
+      .catch(() => {
+        toast({
+          status: "warning",
+          description: "비밀번호가 올바르지 않습니다.",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setPassword("");
+        onClose();
+      });
   }
 
   return (
@@ -105,11 +146,6 @@ export function MemberInfo() {
               <FormLabel fontWeight="bold" color="gray.600">
                 성별
               </FormLabel>
-              {/*<Input*/}
-              {/*  isReadOnly*/}
-              {/*  value={member.gender === 0 ? "남성" : "여성"}*/}
-              {/*  bg="gray.100"*/}
-              {/*/>*/}
               <RadioGroup value={member.gender.toString()}>
                 <Stack direction="row">
                   <Radio readOnly value="0">
@@ -151,7 +187,7 @@ export function MemberInfo() {
             <Center>
               <Button
                 mr={4}
-                onClick={() => navigate(`/member/edit/${member.id}`)}
+                onClick={() => navigate(`/member/${member.id}/edit`)}
                 colorScheme="blue"
               >
                 수정
@@ -163,6 +199,42 @@ export function MemberInfo() {
           </VStack>
         </Box>
       </Center>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader textAlign="center">회원탈퇴</ModalHeader>
+          <ModalBody>
+            <FormControl>
+              <FormLabel fontWeight="bold">
+                {account.isAdmin() || account.isManager()
+                  ? "관리자 비밀번호를 입력하세요."
+                  : "비밀번호를 입력해주세요"}
+              </FormLabel>
+              <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              onClick={onClose}
+              mr={3}
+              colorScheme="blue"
+              variant="outline"
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleDelete}
+              isLoading={isLoading}
+              colorScheme="red"
+            >
+              확인
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
