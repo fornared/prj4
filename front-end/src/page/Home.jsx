@@ -1,18 +1,13 @@
-import { Box } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 export function Home() {
+  const navigate = useNavigate();
+
   return (
-    <Box mb={300}>
-      <Box
-        border="1px solid black"
-        mx={{
-          base: 0,
-          lg: 200,
-        }}
-        mt={10}
-      >
-        {/*<Outlet />*/}
-      </Box>
+    <Box m={10}>
+      {/*<Outlet />*/}
+      <Button onClick={() => navigate("/book/add")}>추가</Button>
     </Box>
   );
 }

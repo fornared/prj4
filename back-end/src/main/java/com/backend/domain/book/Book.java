@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 @Data
 public class Book {
     private Integer id;
-    private Integer categoryId;
-    private String categoryName;
+    private Integer kdcId;
+    private String isbn;
     private String title;
     private String author;
     private String publisher;
-    private String publishedDate;
+    private String publicationYear;
     private String description;
-    private String isbn;
+    private Integer memberId;
     private LocalDateTime inserted;
 }
