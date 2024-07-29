@@ -8,7 +8,8 @@ import axios from "axios";
 import { MemberList } from "./page/member/MemberList.jsx";
 import { Navbar } from "./component/Navbar.jsx";
 import { MemberInfo } from "./page/member/MemberInfo.jsx";
-import { MemberEdit } from "./page/member/MemberEdit.jsx"; // axios interceptor 설정
+import { MemberEdit } from "./page/member/MemberEdit.jsx";
+import { BookAdd } from "./page/book/BookAdd.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
       { path: "member/list", element: <MemberList /> },
       { path: "member/:id", element: <MemberInfo /> },
       { path: "member/:id/edit", element: <MemberEdit /> },
+      { path: "book/add", element: <BookAdd /> },
     ],
   },
 ]);

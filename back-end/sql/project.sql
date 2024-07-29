@@ -23,24 +23,32 @@ CREATE TABLE member_authority
 CREATE TABLE book
 (
     id               INT PRIMARY KEY AUTO_INCREMENT,
-    category_id      INT          NOT NULL REFERENCES category (id),
+    kdc_id           INT          NOT NULL REFERENCES kdc_sub (id),
+    isbn             VARCHAR(13)  NOT NULL UNIQUE,
     title            VARCHAR(255) NOT NULL,
     author           VARCHAR(100) NOT NULL,
     publisher        VARCHAR(100) NOT NULL,
     publication_year VARCHAR(4),
-    isbn             VARCHAR(13)  NOT NULL,
     description      TEXT,
+    member_id        INT          NOT NULL REFERENCES member (id),
     inserted         DATETIME     NOT NULL DEFAULT NOW()
 );
-CREATE TABLE category
+CREATE TABLE kdc_main
 (
-    id   INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(50)
+    id         INT PRIMARY KEY,
+    class_code VARCHAR(10) NOT NULL,
+    name       VARCHAR(20) NOT NULL
 );
-CREATE TABLE book_image
+CREATE TABLE kdc_sub
+(
+    kdc_main_id INT         NOT NULL REFERENCES kdc_main (id),
+    id          INT PRIMARY KEY,
+    class_code  VARCHAR(10) NOT NULL,
+    name        VARCHAR(50) NOT NULL
+);
+CREATE TABLE book_image1
 (
     id      INT PRIMARY KEY AUTO_INCREMENT,
-    book_id INT NOT NULL REFERENCES book (id),
-    name    VARCHAR(255),
-    url     VARCHAR(1024)
+    book_id INT          NOT NULL REFERENCES book (id),
+    name    VARCHAR(255) NOT NULL
 );
