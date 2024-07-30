@@ -11,6 +11,7 @@ import {
   InputGroup,
   InputRightElement,
   Select,
+  Spinner,
   Textarea,
   Tooltip,
   useToast,
@@ -39,10 +40,25 @@ export function BookAdd() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("/api/book/get/kdc").then((res) => {
-      setKdcMain(res.data.main);
-      setKdcSub(res.data.sub);
-    });
+    setIsLoading(true);
+    axios
+      .get("/api/book/get/kdc")
+      .then((res) => {
+        setKdcMain(res.data.main);
+        setKdcSub(res.data.sub);
+      })
+      .catch(() => {
+        toast({
+          status: "warning",
+          description: "페이지를 불러오는 중 문제가 발생하였습니다.",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   function handleLengthCheck(e, max) {
@@ -74,14 +90,25 @@ export function BookAdd() {
         });
         navigate("/");
       })
-      .catch(() => {
-        toast({
-          title: "도서 등록 중 오류가 발생하였습니다.",
-          status: "error",
-          position: "top",
-          duration: 2000,
-          isClosable: true,
-        });
+      .catch((err) => {
+        if (err.response.status === 401) {
+          toast({
+            status: "error",
+            description: "권한이 없습니다.",
+            position: "top",
+            duration: 2000,
+            isClosable: true,
+          });
+          navigate("/");
+        } else {
+          toast({
+            title: "도서 등록 중 오류가 발생하였습니다.",
+            status: "error",
+            position: "top",
+            duration: 2000,
+            isClosable: true,
+          });
+        }
       })
       .finally(() => {
         setIsLoading(false);
@@ -129,6 +156,10 @@ export function BookAdd() {
     if (window.confirm("작성한 내용을 저장하지 않고 목록으로 돌아갑니다.")) {
       navigate("/");
     }
+  }
+
+  if (isLoading) {
+    return <Spinner />;
   }
 
   return (

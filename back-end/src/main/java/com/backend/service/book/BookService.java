@@ -92,4 +92,31 @@ public class BookService {
             return false;
         }
     }
+
+    public Map<String, Object> list(Integer page, Integer kdc, String type, String keyword) {
+        Map<String, Object> pageInfo = new HashMap<>();
+        Integer countAll = mapper.countAllWithSearch(kdc, type, keyword);
+
+        Integer offset = (page - 1) * 10;
+        Integer lastPageNum = (countAll - 1) / 10 + 1;
+        Integer beginPageNum = (page - 1) / 10 * 10 + 1;
+        Integer endPageNum = beginPageNum + 9;
+        endPageNum = Math.min(endPageNum, lastPageNum);
+
+        Integer prevPageNum = beginPageNum - 1;
+        Integer nextPageNum = endPageNum + 1;
+
+        if (prevPageNum > 0) {
+            pageInfo.put("prevPageNum", prevPageNum);
+        }
+        if (nextPageNum <= lastPageNum) {
+            pageInfo.put("nextPageNum", nextPageNum);
+        }
+        pageInfo.put("currPageNum", page);
+        pageInfo.put("lastPageNum", lastPageNum);
+        pageInfo.put("beginPageNum", beginPageNum);
+        pageInfo.put("endPageNum", endPageNum);
+
+        return Map.of("boardList", mapper.selectAllPaging(offset, kdc, type, keyword), "pageInfo", pageInfo);
+    }
 }

@@ -38,4 +38,12 @@ public class BookController {
     public boolean check(@RequestParam String isbn) {
         return service.checkIsbn(isbn);
     }
+
+    @GetMapping("list")
+    public Map<String, Object> list(@RequestParam(defaultValue = "1") Integer page,
+                                    @RequestParam(required = false) Integer kdc,
+                                    @RequestParam(required = false) String type,
+                                    @RequestParam(required = false) String keyword) {
+        return service.list(page, kdc, type, keyword);
+    }
 }
