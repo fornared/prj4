@@ -29,7 +29,7 @@ export function LoginProvider({ children }) {
   }
 
   function isManager() {
-    return authority.includes("manager");
+    return authority.includes("manager") || authority.includes("admin");
   }
 
   // login
