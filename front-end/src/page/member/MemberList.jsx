@@ -23,9 +23,6 @@ export function MemberList() {
       .get("/api/member/list")
       .then((res) => {
         setMemberList(res.data);
-        // res.data.map((it) =>
-        //   console.log(new Date(it.inserted).toLocaleString()),
-        // );
       })
       .catch((err) => {
         if (err.response.status === 401 || err.response.status === 403) {

@@ -33,7 +33,7 @@ export function MemberLogin() {
           duration: 2000,
           isClosable: true,
         });
-        navigate("/");
+        navigate(-1);
       })
       .catch(() => {
         account.logout();

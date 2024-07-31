@@ -14,6 +14,10 @@ public class Book {
     private String publisher;
     private String publicationYear;
     private String description;
-    private Integer memberId;
+    private Integer quantity;
     private LocalDateTime inserted;
+
+    private String kdcMain;
+    private String kdcSub;
+    private BookImage bookImage;
 }

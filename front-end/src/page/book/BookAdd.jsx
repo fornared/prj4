@@ -55,6 +55,7 @@ export function BookAdd() {
           duration: 2000,
           isClosable: true,
         });
+        navigate("/");
       })
       .finally(() => {
         setIsLoading(false);

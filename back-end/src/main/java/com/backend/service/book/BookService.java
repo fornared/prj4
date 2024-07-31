@@ -1,6 +1,8 @@
 package com.backend.service.book;
 
 import com.backend.domain.book.Book;
+import com.backend.domain.book.BookImage;
+import com.backend.domain.book.BookTransactions;
 import com.backend.domain.book.Kdc;
 import com.backend.mapper.book.BookMapper;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +36,13 @@ public class BookService {
     String srcPrefix;
 
     public void addBook(Authentication auth, Book book, MultipartFile[] files) throws IOException {
-        book.setMemberId(Integer.valueOf(auth.getName()));
         mapper.insertBook(book);
+
+        BookTransactions bt = new BookTransactions();
+        bt.setId(book.getId());
+        bt.setMemberId(Integer.valueOf(auth.getName()));
+        mapper.insertBookTransactions(bt);
+
         if (files != null) {
             for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
@@ -117,6 +125,33 @@ public class BookService {
         pageInfo.put("beginPageNum", beginPageNum);
         pageInfo.put("endPageNum", endPageNum);
 
-        return Map.of("boardList", mapper.selectAllPaging(offset, kdc, type, keyword), "pageInfo", pageInfo);
+        List<Book> bookList = new ArrayList<>();
+
+        if (kdc != null && kdc % 10 == 0) {
+            for (int i = 0; i < 10; i++) {
+                bookList.addAll(mapper.selectAllPaging(offset, kdc + i, type, keyword));
+            }
+        } else {
+            bookList = mapper.selectAllPaging(offset, kdc, type, keyword);
+        }
+
+        for (Book book : bookList) {
+            String fileName = mapper.selectImageNameByBookId(book.getId());
+            BookImage image = new BookImage(fileName, STR."\{srcPrefix}\{book.getId()}/\{fileName}");
+            book.setBookImage(image);
+        }
+
+        return Map.of("bookList", bookList, "pageInfo", pageInfo);
+    }
+
+    public Book get(Integer id) {
+        Book book = mapper.selectById(id);
+
+
+        String fileName = mapper.selectImageNameByBookId(id);
+        BookImage image = new BookImage(fileName, STR."\{srcPrefix}\{id}/\{fileName}");
+        book.setBookImage(image);
+
+        return book;
     }
 }

@@ -12,6 +12,7 @@ export function Home() {
       {account.isManager() && (
         <Button onClick={() => navigate("/book/add")}>추가</Button>
       )}
+      <Button onClick={() => navigate("/book/list")}>목록</Button>
     </Box>
   );
 }
