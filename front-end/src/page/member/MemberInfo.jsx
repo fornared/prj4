@@ -66,7 +66,7 @@ export function MemberInfo() {
         }
       })
       .finally();
-  }, []);
+  }, [id]);
 
   if (member === null) {
     return <Spinner />;

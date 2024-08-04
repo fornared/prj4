@@ -46,4 +46,9 @@ public class BookController {
                                     @RequestParam(required = false) String keyword) {
         return service.list(page, kdc, type, keyword);
     }
+
+    @GetMapping("{id}")
+    public Book get(@PathVariable Integer id) {
+        return service.get(id);
+    }
 }

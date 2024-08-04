@@ -10,7 +10,8 @@ import { Navbar } from "./component/Navbar.jsx";
 import { MemberInfo } from "./page/member/MemberInfo.jsx";
 import { MemberEdit } from "./page/member/MemberEdit.jsx";
 import { BookAdd } from "./page/book/BookAdd.jsx";
-import { BookList } from "./page/book/BookList.jsx"; // axios interceptor 설정
+import { BookList } from "./page/book/BookList.jsx";
+import { BookInfo } from "./page/book/BookInfo.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
       { path: "member/:id/edit", element: <MemberEdit /> },
       { path: "book/add", element: <BookAdd /> },
       { path: "book/list", element: <BookList /> },
+      { path: "book/:id", element: <BookInfo /> },
     ],
   },
 ]);

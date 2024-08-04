@@ -1,6 +1,7 @@
 package com.backend.mapper.book;
 
 import com.backend.domain.book.Book;
+import com.backend.domain.book.BookTransactions;
 import com.backend.domain.book.Kdc;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,8 +13,8 @@ import java.util.List;
 @Mapper
 public interface BookMapper {
     @Insert("""
-            INSERT INTO book(kdc_id, isbn, title, author, publisher, publication_year, description, member_id)
-            VALUES (#{kdcId}, #{isbn}, #{title}, #{author}, #{publisher}, #{publicationYear}, #{description}, #{memberId})
+            INSERT INTO book(kdc_id, isbn, title, author, publisher, publication_year, description)
+            VALUES (#{kdcId}, #{isbn}, #{title}, #{author}, #{publisher}, #{publicationYear}, #{description})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertBook(Book book);
@@ -110,4 +111,26 @@ public interface BookMapper {
             </script>
             """)
     List<Book> selectAllPaging(Integer offset, Integer kdc, String type, String keyword);
+
+    @Select("""
+            SELECT b.*, km.name kdcMain, ks.name kdcSub
+            FROM book b
+                JOIN kdc_sub ks ON b.kdc_id = ks.id
+                JOIN kdc_main km ON ks.kdc_main_id = km.id
+            WHERE b.id=#{id}
+            """)
+    Book selectById(Integer id);
+
+    @Select("""
+            SELECT name
+            FROM book_image1
+            WHERE book_id=#{bookId}
+            """)
+    String selectImageNameByBookId(Integer bookId);
+
+    @Insert("""
+            INSERT INTO book_transactions (book_id, member_id, changes)
+            VALUES (#{bookId}, #{memberId}, 1)
+            """)
+    int insertBookTransactions(BookTransactions bt);
 }

@@ -30,7 +30,7 @@ CREATE TABLE book
     publisher        VARCHAR(100) NOT NULL,
     publication_year VARCHAR(4),
     description      TEXT,
-    member_id        INT          NOT NULL REFERENCES member (id),
+    quantity         INT          NOT NULL DEFAULT 1,
     inserted         DATETIME     NOT NULL DEFAULT NOW()
 );
 CREATE TABLE kdc_main
@@ -51,4 +51,12 @@ CREATE TABLE book_image1
     id      INT PRIMARY KEY AUTO_INCREMENT,
     book_id INT          NOT NULL REFERENCES book (id),
     name    VARCHAR(255) NOT NULL
+);
+CREATE TABLE book_transactions
+(
+    id        INT PRIMARY KEY AUTO_INCREMENT,
+    book_id   INT      NOT NULL REFERENCES book (id),
+    member_id INT      NOT NULL REFERENCES member (id),
+    changes   INT      NOT NULL,
+    updated   DATETIME NOT NULL DEFAULT NOW()
 );
