@@ -17,6 +17,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faImage } from "@fortawesome/free-regular-svg-icons";
 
 export function BookList() {
   const [isLoading, setIsLoading] = useState(false);
@@ -207,15 +209,27 @@ export function BookList() {
           >
             {bookList.map((book) => (
               <Flex key={book.id}>
-                <Image
-                  src={book.bookImage.src}
-                  cursor="pointer"
-                  onClick={() => navigate(`/book/${book.id}`)}
-                  p={1}
-                  w="30%"
+                <Box
                   border="1px solid black"
-                />
-                <Box p={2} w={"70%"} border="1px solid red">
+                  w={"25%"}
+                  p={1}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  {book.bookImage.name ? (
+                    <Image
+                      src={book.bookImage.src}
+                      w={"100%"}
+                      h={"100%"}
+                      cursor="pointer"
+                      onClick={() => navigate(`/book/${book.id}`)}
+                    />
+                  ) : (
+                    <FontAwesomeIcon icon={faImage} />
+                  )}
+                </Box>
+                <Box p={2} w={"75%"} border="1px solid red">
                   <Heading
                     onClick={() => navigate(`/book/${book.id}`)}
                     size="md"

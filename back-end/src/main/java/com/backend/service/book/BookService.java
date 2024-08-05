@@ -2,7 +2,6 @@ package com.backend.service.book;
 
 import com.backend.domain.book.Book;
 import com.backend.domain.book.BookImage;
-import com.backend.domain.book.BookTransactions;
 import com.backend.domain.book.Kdc;
 import com.backend.mapper.book.BookMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -37,11 +37,7 @@ public class BookService {
 
     public void addBook(Authentication auth, Book book, MultipartFile[] files) throws IOException {
         mapper.insertBook(book);
-
-        BookTransactions bt = new BookTransactions();
-        bt.setId(book.getId());
-        bt.setMemberId(Integer.valueOf(auth.getName()));
-        mapper.insertBookTransactions(bt);
+        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), 1);
 
         if (files != null) {
             for (MultipartFile file : files) {
@@ -153,5 +149,77 @@ public class BookService {
         book.setBookImage(image);
 
         return book;
+    }
+
+    public void editBook(Authentication auth, Book book, MultipartFile[] files) throws IOException {
+        if (files != null && files.length > 0) {
+            String oldKey = STR."prj4/\{book.getId()}/\{mapper.selectImageNameByBookId(book.getId())}";
+            DeleteObjectRequest oldObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(oldKey)
+                    .build();
+            s3Client.deleteObject(oldObjectRequest);
+
+            for (MultipartFile file : files) {
+                String fileName = file.getOriginalFilename();
+                mapper.updateImage(book.getId(), fileName);
+
+                String newKey = STR."prj4/\{book.getId()}/\{fileName}";
+                PutObjectRequest newObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(newKey)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build();
+
+                s3Client.putObject(newObjectRequest,
+                        RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            }
+        }
+
+        mapper.updateBook(book);
+        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), 0);
+    }
+
+    public void removeBook(Integer id) {
+        String key = STR."prj4/\{id}/\{mapper.selectImageNameByBookId(id)}";
+        DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+        s3Client.deleteObject(objectRequest);
+
+        mapper.deleteImageByBookId(id);
+        // TODO: 대여 정보 삭제
+        mapper.deleteBookTransactionsByBookId(id);
+        mapper.deleteBookById(id);
+    }
+
+    public boolean borrowable(Integer id) {
+        if (mapper.selectQuantityByBookId(id) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public void borrowBook(Integer id, Authentication auth) {
+        Integer memberId = Integer.valueOf(auth.getName());
+        mapper.insertBookLoan(id, memberId);
+        mapper.insertBookTransactions(id, memberId, -1);
+        mapper.updateBookQuantity(id, -1);
+    }
+
+    public boolean isBorrow(Integer id, Authentication auth) {
+        if (mapper.selectBookLoanId(id, Integer.valueOf(auth.getName())) != null && mapper.selectReturnDate(id, Integer.valueOf(auth.getName())) == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void returnBook(Integer id, Authentication auth) {
+        Integer memberId = Integer.valueOf(auth.getName());
+
+        mapper.updateBookQuantity(id, 1);
+        mapper.updateReturnDateAtBookLoan(id, memberId);
+        mapper.insertBookTransactions(id, memberId, 1);
     }
 }

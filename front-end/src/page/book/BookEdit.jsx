@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,32 +9,23 @@ import {
   FormLabel,
   Heading,
   Input,
-  InputGroup,
-  InputRightElement,
   Select,
   Spinner,
   Textarea,
-  Tooltip,
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-export function BookAdd() {
+export function BookEdit() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isbn, setIsbn] = useState("");
-  const [isIsbnChecked, setIsIsbnChecked] = useState(false);
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [publisher, setPublisher] = useState("");
-  const [publicationYear, setPublicationYear] = useState("");
+  const { id } = useParams();
+  const [book, setBook] = useState({});
   const [kdcMain, setKdcMain] = useState([]);
   const [selectedMain, setSelectedMain] = useState(0);
   const [kdcSub, setKdcSub] = useState([]);
   const [selectedSub, setSelectedSub] = useState(0);
-  const [description, setDescription] = useState("");
   const [files, setFiles] = useState([]);
 
   const toast = useToast();
@@ -46,6 +38,15 @@ export function BookAdd() {
       .then((res) => {
         setKdcMain(res.data.main);
         setKdcSub(res.data.sub);
+        axios
+          .get(`/api/book/${id}`)
+          .then((res) => {
+            setBook(res.data);
+            setSelectedMain(Math.floor(res.data.kdcId / 10));
+            setSelectedSub(res.data.kdcId);
+          })
+          .catch()
+          .finally();
       })
       .catch(() => {
         toast({
@@ -55,7 +56,7 @@ export function BookAdd() {
           duration: 2000,
           isClosable: true,
         });
-        navigate("/");
+        navigate(-1);
       })
       .finally(() => {
         setIsLoading(false);
@@ -71,25 +72,26 @@ export function BookAdd() {
   function handleSubmit() {
     setIsLoading(true);
     axios
-      .postForm("/api/book/add", {
-        isbn,
-        title,
-        author,
-        publisher,
-        publicationYear,
+      .putForm("/api/book/edit", {
+        id: id,
+        isbn: book.isbn,
         kdcId: selectedSub,
-        description,
+        title: book.title,
+        author: book.author,
+        publisher: book.publisher,
+        publicationYear: book.publicationYear,
+        description: book.description,
         files,
       })
       .then(() => {
         toast({
-          title: "도서가 등록되었습니다.",
+          title: "도서 정보가 수정되었습니다.",
           status: "success",
           position: "top",
           duration: 2000,
           isClosable: true,
         });
-        navigate("/");
+        navigate(`/book/${id}`);
       })
       .catch((err) => {
         if (err.response.status === 401) {
@@ -103,7 +105,7 @@ export function BookAdd() {
           navigate("/");
         } else {
           toast({
-            title: "도서 등록 중 오류가 발생하였습니다.",
+            title: "도서 정보 수정 중 오류가 발생하였습니다.",
             status: "error",
             position: "top",
             duration: 2000,
@@ -116,47 +118,21 @@ export function BookAdd() {
       });
   }
 
-  function handleCheckIsbn() {
-    axios.get(`/api/book/check?isbn=${isbn}`).then((res) => {
-      if (res.data === true) {
-        toast({
-          status: "success",
-          description: "등록 가능한 도서입니다.",
-          position: "top",
-          duration: 2000,
-          isClosable: true,
-        });
-        setIsIsbnChecked(true);
-      } else {
-        toast({
-          status: "warning",
-          description: "이미 등록된 도서입니다.",
-          position: "top",
-          duration: 2000,
-          isClosable: true,
-        });
-      }
-    });
+  function handleCancel() {
+    if (window.confirm("작성한 내용은 저장되지 않습니다.")) {
+      navigate(-1);
+    }
   }
 
   let isDisabled = false;
+
   if (
-    !isbn.trim().length > 0 ||
-    !title.trim().length > 0 ||
-    !author.trim().length > 0 ||
-    !publisher.trim().length > 0 ||
-    selectedSub < 0
+    Object.keys(book).length !== 0 &&
+    (!book.title.trim().length > 0 ||
+      !book.author.trim().length > 0 ||
+      !book.publisher.trim().length > 0)
   ) {
     isDisabled = true;
-  }
-  if (!isIsbnChecked) {
-    isDisabled = true;
-  }
-
-  function handleCancel() {
-    if (window.confirm("작성한 내용을 저장하지 않고 목록으로 돌아갑니다.")) {
-      navigate("/book/list");
-    }
   }
 
   if (isLoading) {
@@ -180,7 +156,7 @@ export function BookAdd() {
             fontWeight="bold"
             // color="teal.500"
           >
-            도서 등록
+            편집
           </Heading>
           <Divider mb={6} />
           <VStack spacing={4} align="stretch">
@@ -188,52 +164,40 @@ export function BookAdd() {
               <FormLabel fontWeight="bold" color="gray.600">
                 ISBN*
               </FormLabel>
-              <InputGroup>
-                <Input
-                  onInput={(e) => handleLengthCheck(e, 13)}
-                  onChange={(e) => {
-                    setIsIsbnChecked(false);
-                    setIsbn(e.target.value);
-                  }}
-                />
-                <InputRightElement w={75}>
-                  <Tooltip
-                    placement="top-end"
-                    hasArrow
-                    bg="gray.700"
-                    isDisabled={isbn.length === 10 || isbn.length === 13}
-                    label="10자리 또는 13자리 ISBN을 입력해주세요."
-                  >
-                    <Button
-                      size="sm"
-                      m={1}
-                      isDisabled={isbn.length !== 10 && isbn.length !== 13}
-                      onClick={handleCheckIsbn}
-                      colorScheme="blue"
-                    >
-                      중복확인
-                    </Button>
-                  </Tooltip>
-                </InputRightElement>
-              </InputGroup>
+              <Input
+                isReadOnly={true}
+                defaultValue={book.isbn}
+                bgColor="gray.100"
+              />
             </FormControl>
             <FormControl>
               <FormLabel fontWeight="bold" color="gray.600">
                 제목*
               </FormLabel>
-              <Input onChange={(e) => setTitle(e.target.value)} />
+              <Input
+                onChange={(e) => setBook({ ...book, title: e.target.value })}
+                defaultValue={book.title}
+              />
             </FormControl>
             <FormControl>
               <FormLabel fontWeight="bold" color="gray.600">
                 저자명*
               </FormLabel>
-              <Input onChange={(e) => setAuthor(e.target.value)} />
+              <Input
+                onChange={(e) => setBook({ ...book, author: e.target.value })}
+                defaultValue={book.author}
+              />
             </FormControl>
             <FormControl>
               <FormLabel fontWeight="bold" color="gray.600">
                 출판사*
               </FormLabel>
-              <Input onChange={(e) => setPublisher(e.target.value)} />
+              <Input
+                onChange={(e) =>
+                  setBook({ ...book, publisher: e.target.value })
+                }
+                defaultValue={book.publisher}
+              />
             </FormControl>
             <FormControl>
               <FormLabel fontWeight="bold" color="gray.600">
@@ -242,7 +206,10 @@ export function BookAdd() {
               <Input
                 type="number"
                 onInput={(e) => handleLengthCheck(e, 4)}
-                onChange={(e) => setPublicationYear(e.target.value)}
+                onChange={(e) =>
+                  setBook({ ...book, publicationYear: e.target.value })
+                }
+                defaultValue={book.publicationYear}
               />
             </FormControl>
             <FormControl>
@@ -285,7 +252,12 @@ export function BookAdd() {
               <FormLabel fontWeight="bold" color="gray.600">
                 설명
               </FormLabel>
-              <Textarea onChange={(e) => setDescription(e.target.value)} />
+              <Textarea
+                onChange={(e) =>
+                  setBook({ ...book, description: e.target.value })
+                }
+                defaultValue={book.description}
+              />
             </FormControl>
             <FormControl>
               <FormLabel fontWeight="bold" color="gray.600">
@@ -306,7 +278,7 @@ export function BookAdd() {
                 mr={4}
                 colorScheme="blue"
               >
-                등록
+                저장
               </Button>
               <Button onClick={handleCancel} colorScheme="red">
                 취소

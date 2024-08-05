@@ -60,3 +60,13 @@ CREATE TABLE book_transactions
     changes   INT      NOT NULL,
     updated   DATETIME NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE book_loan
+(
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    member_id   INT  NOT NULL REFERENCES member (id),
+    book_id     INT  NOT NULL REFERENCES book (id),
+    loan_date   DATE NOT NULL DEFAULT CURDATE(),
+    due_date    DATE NOT NULL DEFAULT (CURDATE() + INTERVAL 7 DAY),
+    return_date DATE
+);
