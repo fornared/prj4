@@ -51,4 +51,21 @@ public class BookController {
     public Book get(@PathVariable Integer id) {
         return service.get(id);
     }
+
+    @PutMapping("edit")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_manager')")
+    public ResponseEntity edit(Authentication auth, Book book, @RequestParam(value = "files[]", required = false) MultipartFile[] files) throws IOException {
+        if (service.validate(book)) {
+            service.editBook(auth, book, files);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_manager')")
+    public void delete(@PathVariable Integer id) {
+        service.removeBook(id);
+    }
 }

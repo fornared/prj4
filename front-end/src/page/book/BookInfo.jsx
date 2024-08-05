@@ -27,6 +27,8 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { LoginContext } from "../../component/LoginProvider.jsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 
 export function BookInfo() {
   const { id } = useParams();
@@ -66,6 +68,33 @@ export function BookInfo() {
     }
   }
 
+  function handleRemove() {
+    if (window.confirm("등록된 도서를 삭제하시겠습니까?")) {
+      axios
+        .delete(`/api/book/${id}`)
+        .then(() => {
+          toast({
+            title: "도서 정보를 삭제하였습니다.",
+            status: "success",
+            position: "top",
+            duration: 2000,
+            isClosable: true,
+          });
+          navigate("/book/list");
+        })
+        .catch(() => {
+          toast({
+            status: "error",
+            description: "도서 삭제 중 오류가 발생하였습니다.",
+            position: "top",
+            duration: 2000,
+            isClosable: true,
+          });
+        })
+        .finally(() => {});
+    }
+  }
+
   function handleBorrow() {}
 
   return (
@@ -87,7 +116,24 @@ export function BookInfo() {
         mb={10}
       >
         <Box ml={1}>
-          <Heading>{book.title}</Heading>
+          <Flex justifyContent="space-between">
+            <Heading>{book.title}</Heading>
+            {account.isManager() && (
+              <Box>
+                <FontAwesomeIcon
+                  icon={faPenToSquare}
+                  cursor="pointer"
+                  onClick={() => navigate(`/book/${id}/edit`)}
+                />
+                &nbsp;&nbsp;
+                <FontAwesomeIcon
+                  icon={faTrashCan}
+                  cursor="pointer"
+                  onClick={handleRemove}
+                />
+              </Box>
+            )}
+          </Flex>
           <Text mt={1} fontSize="sm">
             {book.kdcMain} &gt; {book.kdcSub}
           </Text>

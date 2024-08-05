@@ -1,12 +1,8 @@
 package com.backend.mapper.book;
 
 import com.backend.domain.book.Book;
-import com.backend.domain.book.BookTransactions;
 import com.backend.domain.book.Kdc;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -80,7 +76,7 @@ public interface BookMapper {
     @Select("""
             <script>
             SELECT b.*, bi.*
-            FROM book b JOIN book_image1 bi ON b.id = bi.book_id
+            FROM book b LEFT JOIN book_image1 bi ON b.id = bi.book_id
                 <where>
                     <if test="kdc != null">
                         kdc_id = #{kdc}
@@ -130,7 +126,39 @@ public interface BookMapper {
 
     @Insert("""
             INSERT INTO book_transactions (book_id, member_id, changes)
-            VALUES (#{bookId}, #{memberId}, 1)
+            VALUES (#{bookId}, #{memberId}, #{changes})
             """)
-    int insertBookTransactions(BookTransactions bt);
+    int insertBookTransactions(Integer bookId, Integer memberId, Integer changes);
+
+    @Update("""
+            UPDATE book_image1
+            SET name=#{fileName}
+            WHERE book_id=#{bookId}
+            """)
+    int updateImage(Integer bookId, String fileName);
+
+    @Update("""
+            UPDATE book
+            SET kdc_id=#{kdcId}, title=#{title}, author=#{author}, publisher=#{publisher}, publication_year=#{publicationYear}, description=#{description}
+            WHERE id=#{id}
+            """)
+    int updateBook(Book book);
+
+    @Delete("""
+            DELETE FROM book_image1
+            WHERE book_id=#{bookId}
+            """)
+    int deleteImageByBookId(Integer bookId);
+
+    @Delete("""
+            DELETE FROM book_transactions
+            WHERE book_id=#{bookId}
+            """)
+    int deleteBookTransactionsByBookId(Integer bookId);
+
+    @Delete("""
+            DELETE FROM book
+            WHERE id=#{id}
+            """)
+    int deleteBookById(Integer id);
 }
