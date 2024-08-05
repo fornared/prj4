@@ -33,10 +33,20 @@ import { faPenToSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 export function BookInfo() {
   const { id } = useParams();
   const [book, setBook] = useState(null);
+  const [isBorrow, setIsBorrow] = useState(false);
 
   const account = useContext(LoginContext);
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenBorrow,
+    onOpen: onOpenBorrow,
+    onClose: onCloseBorrow,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenReturn,
+    onOpen: onOpenReturn,
+    onClose: onCloseReturn,
+  } = useDisclosure();
   const toast = useToast();
 
   useEffect(() => {
@@ -44,6 +54,13 @@ export function BookInfo() {
       .get(`/api/book/${id}`)
       .then((res) => {
         setBook(res.data);
+      })
+      .catch()
+      .finally();
+    axios
+      .get(`/api/book/${id}/borrow`)
+      .then((res) => {
+        setIsBorrow(res.data);
       })
       .catch()
       .finally();
@@ -55,7 +72,7 @@ export function BookInfo() {
 
   function handleOnOpen() {
     if (account.isLoggedIn()) {
-      onOpen();
+      onOpenBorrow();
     } else {
       toast({
         status: "warning",
@@ -95,7 +112,34 @@ export function BookInfo() {
     }
   }
 
-  function handleBorrow() {}
+  function handleBorrow() {
+    axios
+      .post(`/api/book/${id}/borrow`)
+      .then(() => {
+        toast({
+          title: "도서를 대여하였습니다.",
+          status: "success",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
+        navigate("/book/list");
+      })
+      .catch(() => {
+        toast({
+          status: "error",
+          description: "도서 수량을 확인해 주세요.",
+          position: "top",
+          duration: 2000,
+          isClosable: true,
+        });
+      })
+      .finally();
+  }
+
+  function handleReturn() {
+    axios.put(`/api/book/${id}/return`).then().catch().finally();
+  }
 
   return (
     <Box
@@ -170,16 +214,21 @@ export function BookInfo() {
         <Text fontSize="sm" color="gray.500">
           현재수량: {book.quantity}
         </Text>
-        <Button
-          isDisabled={book.quantity < 1}
-          onClick={handleOnOpen}
-          colorScheme="blue"
-          variant="outline"
-        >
-          대여
-        </Button>
+        {isBorrow ? (
+          <Button onClick={onOpenReturn} colorScheme="teal">
+            반납
+          </Button>
+        ) : (
+          <Button
+            isDisabled={book.quantity < 1}
+            onClick={handleOnOpen}
+            colorScheme="blue"
+          >
+            {book.quantity < 1 ? "대여불가" : "대여"}
+          </Button>
+        )}
       </Box>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpenBorrow} onClose={onCloseBorrow}>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
@@ -189,7 +238,32 @@ export function BookInfo() {
             <Button onClick={handleBorrow} colorScheme="blue" variant="outline">
               확인
             </Button>
-            <Button onClick={onClose} colorScheme="teal" variant="outline">
+            <Button
+              onClick={onCloseBorrow}
+              colorScheme="teal"
+              variant="outline"
+            >
+              취소
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isOpenReturn} onClose={onCloseReturn}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader>반납</ModalHeader>
+          <ModalBody>반납할까요?</ModalBody>
+          <ModalFooter gap={2}>
+            <Button onClick={handleReturn} colorScheme="blue" variant="outline">
+              확인
+            </Button>
+            <Button
+              onClick={onCloseReturn}
+              colorScheme="teal"
+              variant="outline"
+            >
               취소
             </Button>
           </ModalFooter>

@@ -193,4 +193,33 @@ public class BookService {
         mapper.deleteBookTransactionsByBookId(id);
         mapper.deleteBookById(id);
     }
+
+    public boolean borrowable(Integer id) {
+        if (mapper.selectQuantityByBookId(id) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public void borrowBook(Integer id, Authentication auth) {
+        Integer memberId = Integer.valueOf(auth.getName());
+        mapper.insertBookLoan(id, memberId);
+        mapper.insertBookTransactions(id, memberId, -1);
+        mapper.updateBookQuantity(id, -1);
+    }
+
+    public boolean isBorrow(Integer id, Authentication auth) {
+        if (mapper.selectBookLoanId(id, Integer.valueOf(auth.getName())) != null && mapper.selectReturnDate(id, Integer.valueOf(auth.getName())) == null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void returnBook(Integer id, Authentication auth) {
+        Integer memberId = Integer.valueOf(auth.getName());
+
+        mapper.updateBookQuantity(id, 1);
+        mapper.updateReturnDateAtBookLoan(id, memberId);
+        mapper.insertBookTransactions(id, memberId, 1);
+    }
 }

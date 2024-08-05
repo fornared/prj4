@@ -3,6 +3,7 @@ package com.backend.controller.book;
 import com.backend.domain.book.Book;
 import com.backend.service.book.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -67,5 +68,31 @@ public class BookController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_manager')")
     public void delete(@PathVariable Integer id) {
         service.removeBook(id);
+    }
+
+    @PostMapping("{id}/borrow")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity borrow(@PathVariable Integer id, Authentication auth) {
+        if (service.borrowable(id)) {
+            service.borrowBook(id, auth);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @GetMapping("{id}/borrow")
+    @PreAuthorize("isAuthenticated()")
+    public boolean isBorrow(@PathVariable Integer id, Authentication auth) {
+        return service.isBorrow(id, auth);
+    }
+
+    @PutMapping("{id}/return")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity returnBook(@PathVariable Integer id, Authentication auth) {
+        if (service.isBorrow(id, auth)) {
+            service.returnBook(id, auth);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

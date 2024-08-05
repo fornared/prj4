@@ -4,6 +4,7 @@ import com.backend.domain.book.Book;
 import com.backend.domain.book.Kdc;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -161,4 +162,46 @@ public interface BookMapper {
             WHERE id=#{id}
             """)
     int deleteBookById(Integer id);
+
+    @Select("""
+            SELECT quantity
+            FROM book
+            WHERE id=#{id}
+            """)
+    Integer selectQuantityByBookId(Integer id);
+
+    @Insert("""
+            INSERT INTO book_loan(member_id, book_id)
+            VALUES (#{memberId}, #{bookId})
+            """)
+    int insertBookLoan(Integer bookId, Integer memberId);
+
+    @Update("""
+            UPDATE book
+            SET quantity=quantity+#{count}
+            WHERE id=#{id}
+            """)
+    int updateBookQuantity(Integer id, int count);
+
+    @Select("""
+            SELECT return_date
+            FROM book_loan
+            WHERE book_id=#{bookId} AND member_id=#{memberId}
+            ORDER BY loan_date LIMIT 1
+            """)
+    LocalDate selectReturnDate(Integer bookId, Integer memberId);
+
+    @Select("""
+            SELECT id
+            FROM book_loan
+            WHERE book_id=#{bookId} AND member_id=#{memberId}
+            """)
+    Integer selectBookLoanId(Integer bookId, Integer memberId);
+
+    @Update("""
+            UPDATE book_loan
+            SET return_date=CURDATE()
+            WHERE book_id=#{bookId} AND member_id=#{memberId}
+            """)
+    int updateReturnDateAtBookLoan(Integer bookId, Integer memberId);
 }
