@@ -49,8 +49,12 @@ public class BookController {
     }
 
     @GetMapping("{id}")
-    public Book get(@PathVariable Integer id) {
-        return service.get(id);
+    public ResponseEntity get(@PathVariable Integer id) {
+        if (service.isExist(id)) {
+            return ResponseEntity.ok(service.get(id));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("edit")
@@ -66,8 +70,8 @@ public class BookController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_manager')")
-    public void delete(@PathVariable Integer id) {
-        service.removeBook(id);
+    public void delete(@PathVariable Integer id, Authentication auth) {
+        service.removeBook(id, auth);
     }
 
     @PostMapping("{id}/borrow")
@@ -90,9 +94,11 @@ public class BookController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity returnBook(@PathVariable Integer id, Authentication auth) {
         if (service.isBorrow(id, auth)) {
-            service.returnBook(id, auth);
+            Integer memberId = Integer.valueOf(auth.getName());
+            service.returnBook(id, memberId);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
+
 }

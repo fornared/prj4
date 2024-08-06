@@ -1,6 +1,7 @@
 package com.backend.mapper.book;
 
 import com.backend.domain.book.Book;
+import com.backend.domain.book.BookLoan;
 import com.backend.domain.book.Kdc;
 import org.apache.ibatis.annotations.*;
 
@@ -10,8 +11,8 @@ import java.util.List;
 @Mapper
 public interface BookMapper {
     @Insert("""
-            INSERT INTO book(kdc_id, isbn, title, author, publisher, publication_year, description)
-            VALUES (#{kdcId}, #{isbn}, #{title}, #{author}, #{publisher}, #{publicationYear}, #{description})
+            INSERT INTO book(kdc_id, isbn, title, author, publisher, publication_year, description, quantity)
+            VALUES (#{kdcId}, #{isbn}, #{title}, #{author}, #{publisher}, #{publicationYear}, #{description}, #{quantity})
             """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insertBook(Book book);
@@ -140,7 +141,7 @@ public interface BookMapper {
 
     @Update("""
             UPDATE book
-            SET kdc_id=#{kdcId}, title=#{title}, author=#{author}, publisher=#{publisher}, publication_year=#{publicationYear}, description=#{description}
+            SET kdc_id=#{kdcId}, title=#{title}, author=#{author}, publisher=#{publisher}, publication_year=#{publicationYear}, description=#{description}, quantity=#{quantity}
             WHERE id=#{id}
             """)
     int updateBook(Book book);
@@ -204,4 +205,18 @@ public interface BookMapper {
             WHERE book_id=#{bookId} AND member_id=#{memberId}
             """)
     int updateReturnDateAtBookLoan(Integer bookId, Integer memberId);
+
+    @Select("""
+            SELECT id, member_id
+            FROM book_loan
+            WHERE return_date IS NULL AND due_date < CURDATE()
+            """)
+    List<BookLoan> selectBookLoanIdNotReturned();
+
+    @Select("""
+            SELECT SUM(changes)
+            FROM book_transactions
+            WHERE book_id=#{bookId}
+            """)
+    Integer selectSumChangesByBookId(Integer bookId);
 }

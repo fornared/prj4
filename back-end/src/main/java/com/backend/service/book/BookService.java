@@ -2,10 +2,12 @@ package com.backend.service.book;
 
 import com.backend.domain.book.Book;
 import com.backend.domain.book.BookImage;
+import com.backend.domain.book.BookLoan;
 import com.backend.domain.book.Kdc;
 import com.backend.mapper.book.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +39,7 @@ public class BookService {
 
     public void addBook(Authentication auth, Book book, MultipartFile[] files) throws IOException {
         mapper.insertBook(book);
-        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), 1);
+        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), book.getQuantity());
 
         if (files != null) {
             for (MultipartFile file : files) {
@@ -75,6 +77,13 @@ public class BookService {
         }
 
         return true;
+    }
+
+    public boolean isExist(Integer id) {
+        if (mapper.selectById(id) != null) {
+            return true;
+        }
+        return false;
     }
 
     public Map<String, Object> getKdc() {
@@ -143,7 +152,6 @@ public class BookService {
     public Book get(Integer id) {
         Book book = mapper.selectById(id);
 
-
         String fileName = mapper.selectImageNameByBookId(id);
         BookImage image = new BookImage(fileName, STR."\{srcPrefix}\{id}/\{fileName}");
         book.setBookImage(image);
@@ -175,12 +183,12 @@ public class BookService {
                         RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
             }
         }
-
+        Integer prevQuantity = mapper.selectQuantityByBookId(book.getId());
         mapper.updateBook(book);
-        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), 0);
+        mapper.insertBookTransactions(book.getId(), Integer.valueOf(auth.getName()), book.getQuantity() - prevQuantity);
     }
 
-    public void removeBook(Integer id) {
+    public void removeBook(Integer id, Authentication auth) {
         String key = STR."prj4/\{id}/\{mapper.selectImageNameByBookId(id)}";
         DeleteObjectRequest objectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
@@ -190,7 +198,7 @@ public class BookService {
 
         mapper.deleteImageByBookId(id);
         // TODO: 대여 정보 삭제
-        mapper.deleteBookTransactionsByBookId(id);
+        mapper.insertBookTransactions(id, Integer.valueOf(auth.getName()), -mapper.selectSumChangesByBookId(id));
         mapper.deleteBookById(id);
     }
 
@@ -204,7 +212,7 @@ public class BookService {
     public void borrowBook(Integer id, Authentication auth) {
         Integer memberId = Integer.valueOf(auth.getName());
         mapper.insertBookLoan(id, memberId);
-        mapper.insertBookTransactions(id, memberId, -1);
+//        mapper.insertBookTransactions(id, memberId, -1);
         mapper.updateBookQuantity(id, -1);
     }
 
@@ -215,11 +223,17 @@ public class BookService {
         return false;
     }
 
-    public void returnBook(Integer id, Authentication auth) {
-        Integer memberId = Integer.valueOf(auth.getName());
-
+    public void returnBook(Integer id, Integer memberId) {
         mapper.updateBookQuantity(id, 1);
         mapper.updateReturnDateAtBookLoan(id, memberId);
-        mapper.insertBookTransactions(id, memberId, 1);
+//        mapper.insertBookTransactions(id, memberId, 1);
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void autoReturnBook() {
+        List<BookLoan> dueBookList = mapper.selectBookLoanIdNotReturned();
+        for (BookLoan dueBook : dueBookList) {
+            returnBook(dueBook.getId(), dueBook.getMemberId());
+        }
     }
 }

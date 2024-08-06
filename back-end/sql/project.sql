@@ -55,8 +55,8 @@ CREATE TABLE book_image1
 CREATE TABLE book_transactions
 (
     id        INT PRIMARY KEY AUTO_INCREMENT,
-    book_id   INT      NOT NULL REFERENCES book (id),
-    member_id INT      NOT NULL REFERENCES member (id),
+    book_id   INT      NOT NULL,
+    member_id INT      NOT NULL,
     changes   INT      NOT NULL,
     updated   DATETIME NOT NULL DEFAULT NOW()
 );
