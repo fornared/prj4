@@ -108,9 +108,11 @@ public class MemberService {
     public boolean hasAccess(Integer id, Authentication auth) {
         boolean self = auth.getName().equals(id.toString());
 
-        boolean isAdminManager = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SCOPE_admin") || a.getAuthority().equals("SCOPE_manager"));
+        return self || isAdminManager(auth);
+    }
 
-        return self || isAdminManager;
+    public boolean isAdminManager(Authentication auth) {
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SCOPE_admin") || a.getAuthority().equals("SCOPE_manager"));
     }
 
     public boolean hasAccess(Member member, Authentication auth) {

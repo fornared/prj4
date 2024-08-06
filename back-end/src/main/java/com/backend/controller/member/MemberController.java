@@ -94,4 +94,13 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
+
+    @GetMapping("authority")
+    public ResponseEntity getAuthority(Authentication auth) {
+        if (auth != null && service.isAdminManager(auth)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 }
