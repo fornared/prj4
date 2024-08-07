@@ -12,7 +12,8 @@ import { MemberEdit } from "./page/member/MemberEdit.jsx";
 import { BookAdd } from "./page/book/BookAdd.jsx";
 import { BookList } from "./page/book/BookList.jsx";
 import { BookInfo } from "./page/book/BookInfo.jsx";
-import { BookEdit } from "./page/book/BookEdit.jsx"; // axios interceptor 설정
+import { BookEdit } from "./page/book/BookEdit.jsx";
+import { Admin } from "./page/Admin.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
       { path: "book/list", element: <BookList /> },
       { path: "book/:id", element: <BookInfo /> },
       { path: "book/:id/edit", element: <BookEdit /> },
+      { path: "admin", element: <Admin /> },
     ],
   },
 ]);

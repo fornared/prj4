@@ -10,6 +10,11 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Spinner,
   Textarea,
@@ -35,6 +40,7 @@ export function BookAdd() {
   const [selectedSub, setSelectedSub] = useState(0);
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState([]);
+  const [quantity, setQuantity] = useState(1);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -80,6 +86,7 @@ export function BookAdd() {
         kdcId: selectedSub,
         description,
         files,
+        quantity,
       })
       .then(() => {
         toast({
@@ -296,6 +303,25 @@ export function BookAdd() {
                 accept="image/*"
                 onChange={(e) => setFiles(e.target.files)}
               />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontWeight="bold" color="gray.600">
+                수량*
+              </FormLabel>
+              <NumberInput
+                onChange={(number) => setQuantity(Number(number))}
+                maxW={24}
+                defaultValue={1}
+                value={quantity}
+                min={0}
+                allowMouseWheel
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
             </FormControl>
 
             <Center>

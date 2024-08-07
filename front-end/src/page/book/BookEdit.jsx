@@ -9,6 +9,11 @@ import {
   FormLabel,
   Heading,
   Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Spinner,
   Textarea,
@@ -45,7 +50,18 @@ export function BookEdit() {
             setSelectedMain(Math.floor(res.data.kdcId / 10));
             setSelectedSub(res.data.kdcId);
           })
-          .catch()
+          .catch((err) => {
+            if (err.response.status === 404) {
+              toast({
+                status: "warning",
+                description: "해당 도서가 존재하지 않습니다.",
+                position: "top",
+                duration: 2000,
+                isClosable: true,
+              });
+              navigate("/book/list");
+            }
+          })
           .finally();
       })
       .catch(() => {
@@ -81,6 +97,7 @@ export function BookEdit() {
         publisher: book.publisher,
         publicationYear: book.publicationYear,
         description: book.description,
+        quantity: book.quantity,
         files,
       })
       .then(() => {
@@ -268,6 +285,26 @@ export function BookEdit() {
                 accept="image/*"
                 onChange={(e) => setFiles(e.target.files)}
               />
+            </FormControl>
+            <FormControl>
+              <FormLabel fontWeight="bold" color="gray.600">
+                수량*
+              </FormLabel>
+              <NumberInput
+                onChange={(number) =>
+                  setBook({ ...book, quantity: Number(number) })
+                }
+                maxW={24}
+                value={book.quantity}
+                min={0}
+                allowMouseWheel
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
             </FormControl>
 
             <Center>
