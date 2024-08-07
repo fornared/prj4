@@ -1,5 +1,8 @@
 import {
+  Box,
   Center,
+  Divider,
+  Heading,
   Spinner,
   Table,
   Tbody,
@@ -43,20 +46,38 @@ export function MemberList() {
   }
 
   return (
-    <Center>
-      <Table>
-        <Thead>
+    <Box
+      mx={{
+        base: 4,
+        lg: 100,
+      }}
+      mt={10}
+      bg="gray.50"
+      p={4}
+      borderRadius="lg"
+      boxShadow="md"
+      border="1px"
+      borderColor="gray.300"
+    >
+      <Center mt={10}>
+        <Heading color="teal.600" mb={5}>
+          회원 관리
+        </Heading>
+      </Center>
+      <Divider mb={10} />
+      <Table colorScheme="teal" mb={5}>
+        <Thead bgColor="gray.100">
           <Tr>
-            <Th>no</Th>
-            <Th>이름</Th>
-            <Th>이메일</Th>
-            <Th>생년월일</Th>
+            <Th textAlign="center">no</Th>
+            <Th textAlign="center">이름</Th>
+            <Th textAlign="center">이메일</Th>
+            <Th textAlign="center">생년월일</Th>
           </Tr>
         </Thead>
         <Tbody>
           {memberList.map((member) => (
             <Tr key={member.id}>
-              <Td>{member.id}</Td>
+              <Td textAlign="center">{member.id}</Td>
               <Td
                 _hover={{
                   cursor: "pointer",
@@ -64,15 +85,16 @@ export function MemberList() {
                   fontSize: "lg",
                 }}
                 onClick={() => navigate(`/member/${member.id}`)}
+                textAlign="center"
               >
                 {member.name}
               </Td>
-              <Td>{member.email}</Td>
-              <Td>{member.birth}</Td>
+              <Td textAlign="center">{member.email}</Td>
+              <Td textAlign="center">{member.birth}</Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
-    </Center>
+    </Box>
   );
 }

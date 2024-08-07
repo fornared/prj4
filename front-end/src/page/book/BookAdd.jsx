@@ -178,14 +178,15 @@ export function BookAdd() {
           boxShadow="xl"
           borderRadius="lg"
           p={8}
-          border="1px solid black"
+          border="1px"
+          borderColor="gray.300"
         >
           <Heading
             mb={6}
             textAlign="center"
             fontSize="2xl"
             fontWeight="bold"
-            // color="teal.500"
+            color="teal.600"
           >
             도서 등록
           </Heading>
@@ -330,11 +331,15 @@ export function BookAdd() {
                 isDisabled={isDisabled}
                 isLoading={isLoading}
                 mr={4}
-                colorScheme="blue"
+                colorScheme="teal"
               >
                 등록
               </Button>
-              <Button onClick={handleCancel} colorScheme="red">
+              <Button
+                onClick={handleCancel}
+                colorScheme="teal"
+                variant="outline"
+              >
                 취소
               </Button>
             </Center>

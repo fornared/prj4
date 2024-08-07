@@ -164,14 +164,15 @@ export function BookEdit() {
           boxShadow="xl"
           borderRadius="lg"
           p={8}
-          border="1px solid black"
+          border="1px"
+          borderColor="gray.300"
         >
           <Heading
             mb={6}
             textAlign="center"
             fontSize="2xl"
             fontWeight="bold"
-            // color="teal.500"
+            color="teal.600"
           >
             편집
           </Heading>
@@ -313,11 +314,15 @@ export function BookEdit() {
                 isDisabled={isDisabled}
                 isLoading={isLoading}
                 mr={4}
-                colorScheme="blue"
+                colorScheme="teal"
               >
                 저장
               </Button>
-              <Button onClick={handleCancel} colorScheme="red">
+              <Button
+                onClick={handleCancel}
+                colorScheme="teal"
+                variant="outline"
+              >
                 취소
               </Button>
             </Center>

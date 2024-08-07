@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Spinner, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Heading,
+  Spinner,
+  useToast,
+} from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -35,5 +42,30 @@ export function Admin() {
     return <Spinner />;
   }
 
-  return null;
+  return (
+    <Box py={8} px={4} minH="100vh" bg="gray.50">
+      <Center>
+        <Box
+          w={{ base: "100%", lg: 800 }}
+          boxShadow="xl"
+          borderRadius="lg"
+          p={8}
+          border="1px"
+          borderColor="gray.300"
+        >
+          <Heading
+            mb={6}
+            textAlign="center"
+            fontSize="2xl"
+            fontWeight="bold"
+            color="teal.600"
+          >
+            관리자 메뉴
+          </Heading>
+          <Button onClick={() => navigate("/member/list")}>회원 관리</Button>
+          <Button onClick={() => navigate("/book/add")}>추가</Button>
+        </Box>
+      </Center>
+    </Box>
+  );
 }

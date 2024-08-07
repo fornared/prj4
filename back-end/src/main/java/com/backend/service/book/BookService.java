@@ -236,4 +236,19 @@ public class BookService {
             returnBook(dueBook.getId(), dueBook.getMemberId());
         }
     }
+
+    public List<Book> getMyBooks(Authentication auth) {
+        List<Book> myBooks = new ArrayList<>();
+
+        List<Integer> idList = mapper.selectBookIdByMemberIdNotReturned(Integer.valueOf(auth.getName()));
+        for (Integer id : idList) {
+            Book book = get(id);
+            BookLoan bookLoan = mapper.selectBookLoanByBookId(id);
+            book.setBookLoan(bookLoan);
+
+            myBooks.add(book);
+        }
+
+        return myBooks;
+    }
 }

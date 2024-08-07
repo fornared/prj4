@@ -133,12 +133,14 @@ export function BookList() {
       }}
       mt={10}
       bg="gray.50"
-      p={4}
+      p={5}
       borderRadius="lg"
       boxShadow="md"
+      border="1px"
+      borderColor="gray.300"
     >
       <Box mb={5}>
-        <Heading textAlign="center" mb={4} mt={5}>
+        <Heading textAlign="center" color="teal.600" mb={4} mt={5}>
           자료 검색
         </Heading>
       </Box>
@@ -196,10 +198,12 @@ export function BookList() {
           </Box>
         </Flex>
         <Box textAlign="right">
-          <Button onClick={handleSearch}>검색</Button>
+          <Button variant="outline" colorScheme="teal" onClick={handleSearch}>
+            검색
+          </Button>
         </Box>
       </Box>
-      <Divider mb={10} />
+      <Divider mb={10} borderColor="teal" />
       <Box mb={10}>
         {bookList.length > 0 ? (
           <VStack
@@ -210,7 +214,6 @@ export function BookList() {
             {bookList.map((book) => (
               <Flex key={book.id}>
                 <Box
-                  border="1px solid black"
                   w={"25%"}
                   p={1}
                   display="flex"
@@ -229,7 +232,7 @@ export function BookList() {
                     <FontAwesomeIcon icon={faImage} />
                   )}
                 </Box>
-                <Box p={2} w={"75%"} border="1px solid red">
+                <Box p={2} w={"75%"}>
                   <Heading
                     onClick={() => navigate(`/book/${book.id}`)}
                     size="md"

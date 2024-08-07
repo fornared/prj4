@@ -188,7 +188,7 @@ public interface BookMapper {
             SELECT return_date
             FROM book_loan
             WHERE book_id=#{bookId} AND member_id=#{memberId}
-            ORDER BY loan_date LIMIT 1
+            ORDER BY id DESC LIMIT 1
             """)
     LocalDate selectReturnDate(Integer bookId, Integer memberId);
 
@@ -219,4 +219,21 @@ public interface BookMapper {
             WHERE book_id=#{bookId}
             """)
     Integer selectSumChangesByBookId(Integer bookId);
+
+    @Select("""
+            SELECT b.id
+            FROM book b
+                JOIN book_loan bl ON b.id = bl.book_id
+            WHERE bl.member_id=#{memberId} AND bl.return_date IS NULL
+            """)
+    List<Integer> selectBookIdByMemberIdNotReturned(Integer memberId);
+
+    @Select("""
+            SELECT *
+            FROM book_loan
+            WHERE book_id=#{bookId}
+            ORDER BY id DESC
+            LIMIT 1
+            """)
+    BookLoan selectBookLoanByBookId(Integer bookId);
 }
