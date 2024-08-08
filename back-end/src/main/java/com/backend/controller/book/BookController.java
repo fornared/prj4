@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -101,4 +102,15 @@ public class BookController {
         return ResponseEntity.badRequest().build();
     }
 
+    @GetMapping("library")
+    @PreAuthorize("isAuthenticated()")
+    public List<Book> getMyBooks(Authentication auth) {
+        return service.getMyBooks(auth);
+    }
+
+    @GetMapping("history")
+    @PreAuthorize("isAuthenticated()")
+    public List<Book> getHistory(Authentication auth) {
+        return service.getHistory(auth);
+    }
 }

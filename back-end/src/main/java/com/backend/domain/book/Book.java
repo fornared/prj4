@@ -20,4 +20,5 @@ public class Book {
     private String kdcMain;
     private String kdcSub;
     private BookImage bookImage;
+    private BookLoan bookLoan;
 }

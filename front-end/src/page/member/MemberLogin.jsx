@@ -9,7 +9,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { LoginContext } from "../../component/LoginProvider.jsx";
 
@@ -20,6 +20,12 @@ export function MemberLogin() {
 
   const navigate = useNavigate();
   const toast = useToast();
+
+  useEffect(() => {
+    if (account.isLoggedIn()) {
+      navigate("/");
+    }
+  }, []);
 
   function handleLogin() {
     axios
@@ -49,10 +55,18 @@ export function MemberLogin() {
   }
 
   return (
-    <Center>
-      <Box>
-        <Heading>로그인</Heading>
-        <FormControl>
+    <Center
+      border="1px"
+      borderColor="gray.300"
+      borderRadius="3px"
+      mx="20%"
+      p={3}
+    >
+      <Box mt={10} mb={10} w="80%">
+        <Heading textAlign="center" color="teal.600" mb={4}>
+          로그인
+        </Heading>
+        <FormControl mb={3}>
           <FormLabel>이메일</FormLabel>
           <Input
             type="email"
@@ -61,7 +75,7 @@ export function MemberLogin() {
             }}
           />
         </FormControl>
-        <FormControl>
+        <FormControl mb={6}>
           <FormLabel>비밀번호</FormLabel>
           <Input
             type="password"
@@ -70,8 +84,21 @@ export function MemberLogin() {
             }}
           />
         </FormControl>
-        <Button onClick={handleLogin}>로그인</Button>
-        <Button onClick={() => navigate("/signup")}>회원가입</Button>
+        <Center mb={3}>
+          <Button w="100%" colorScheme="teal" onClick={handleLogin}>
+            로그인
+          </Button>
+        </Center>
+        <Center>
+          <Button
+            w="100%"
+            colorScheme="teal"
+            variant="outline"
+            onClick={() => navigate("/signup")}
+          >
+            회원가입
+          </Button>
+        </Center>
       </Box>
     </Center>
   );

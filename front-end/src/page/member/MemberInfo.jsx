@@ -111,14 +111,15 @@ export function MemberInfo() {
           boxShadow="xl"
           borderRadius="lg"
           p={8}
-          border="1px solid black"
+          border="1px"
+          borderColor="gray.300"
         >
           <Heading
             mb={6}
             textAlign="center"
             fontSize="2xl"
             fontWeight="bold"
-            // color="teal.500"
+            color="teal.600"
           >
             회원정보
           </Heading>
@@ -188,7 +189,7 @@ export function MemberInfo() {
               <Button
                 mr={4}
                 onClick={() => navigate(`/member/${member.id}/edit`)}
-                colorScheme="blue"
+                colorScheme="teal"
               >
                 수정
               </Button>

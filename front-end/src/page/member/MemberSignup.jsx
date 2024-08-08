@@ -17,11 +17,12 @@ import {
   Tooltip,
   useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faMinus } from "@fortawesome/free-solid-svg-icons";
+import { LoginContext } from "../../component/LoginProvider.jsx";
 
 export function MemberSignup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +41,13 @@ export function MemberSignup() {
 
   const navigate = useNavigate();
   const toast = useToast();
+  const account = useContext(LoginContext);
+
+  useEffect(() => {
+    if (account.isLoggedIn()) {
+      navigate("/");
+    }
+  }, []);
 
   function handleSubmit() {
     setIsLoading(true);
@@ -144,12 +152,20 @@ export function MemberSignup() {
   }
 
   return (
-    <Center>
-      <Box w={400}>
+    <Center
+      border="1px"
+      borderColor="gray.300"
+      borderRadius="3px"
+      mx="20%"
+      p={3}
+    >
+      <Box mt={10} mb={10} w="80%">
         <Center>
-          <Heading>회원가입</Heading>
+          <Heading color="teal.600" mb={5}>
+            회원가입
+          </Heading>
         </Center>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>이메일</FormLabel>
           <InputGroup>
             <Input
@@ -173,7 +189,7 @@ export function MemberSignup() {
                   m={1}
                   isDisabled={email.trim().length === 0 || isInvalidEmail}
                   onClick={handleCheckEmail}
-                  colorScheme="blue"
+                  colorScheme="teal"
                 >
                   중복확인
                 </Button>
@@ -184,7 +200,7 @@ export function MemberSignup() {
             <FormHelperText>이메일 중복확인을 해주세요.</FormHelperText>
           )}
         </FormControl>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>비밀번호</FormLabel>
           <InputGroup>
             <Input
@@ -202,11 +218,11 @@ export function MemberSignup() {
             </InputRightElement>
           </InputGroup>
         </FormControl>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>이름</FormLabel>
           <Input type="text" onChange={(e) => setName(e.target.value)} />
         </FormControl>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>성별</FormLabel>
           <RadioGroup onChange={setGender} value={gender}>
             <Stack direction="row">
@@ -215,32 +231,38 @@ export function MemberSignup() {
             </Stack>
           </RadioGroup>
         </FormControl>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>전화번호</FormLabel>
-          <Flex>
-            <Input type="number" onChange={(e) => setTel1(e.target.value)} />-
-            <Input type="number" onChange={(e) => setTel2(e.target.value)} />-
+          <Flex gap={1} alignItems="center">
+            <Input type="number" onChange={(e) => setTel1(e.target.value)} />
+            <FontAwesomeIcon icon={faMinus} size="sm" />
+            <Input type="number" onChange={(e) => setTel2(e.target.value)} />
+            <FontAwesomeIcon icon={faMinus} size="sm" />
             <Input type="number" onChange={(e) => setTel3(e.target.value)} />
           </Flex>
         </FormControl>
-        <FormControl>
+        <FormControl mb={3}>
           <FormLabel>주소</FormLabel>
           <Input type="text" onChange={(e) => setAddress(e.target.value)} />
         </FormControl>
-        <FormControl>
+        <FormControl mb={5}>
           <FormLabel>생년월일</FormLabel>
           <Input type="date" onChange={(e) => setBirth(e.target.value)} />
         </FormControl>
-        <Center>
+        <Center gap={3}>
           <Button
             onClick={handleSubmit}
             isDisabled={isDisabled}
             isLoading={isLoading}
-            colorScheme="blue"
+            colorScheme="teal"
           >
             가입
           </Button>
-          <Button onClick={() => navigate(`/login`)} colorScheme="red">
+          <Button
+            onClick={() => navigate(`/login`)}
+            colorScheme="teal"
+            variant="outline"
+          >
             취소
           </Button>
         </Center>

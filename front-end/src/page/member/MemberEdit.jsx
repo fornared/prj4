@@ -22,7 +22,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faMinus } from "@fortawesome/free-solid-svg-icons";
 import { LoginContext } from "../../component/LoginProvider.jsx";
 
 export function MemberEdit() {
@@ -145,14 +145,15 @@ export function MemberEdit() {
             boxShadow="xl"
             borderRadius="lg"
             p={8}
-            border="1px solid black"
+            border="1px"
+            borderColor="gray.300"
           >
             <Heading
               mb={6}
               textAlign="center"
               fontSize="2xl"
               fontWeight="bold"
-              // color="teal.500"
+              color="teal.600"
             >
               회원정보 수정
             </Heading>
@@ -171,7 +172,7 @@ export function MemberEdit() {
               />
             </FormControl>
             <Center>
-              <Button colorScheme="blue" mt={5} onClick={handleCheckPassword}>
+              <Button colorScheme="teal" mt={5} onClick={handleCheckPassword}>
                 확인
               </Button>
             </Center>
@@ -190,14 +191,15 @@ export function MemberEdit() {
             boxShadow="xl"
             borderRadius="lg"
             p={8}
-            border="1px solid black"
+            border="1px"
+            borderColor="gray.300"
           >
             <Heading
               mb={6}
               textAlign="center"
               fontSize="2xl"
               fontWeight="bold"
-              // color="teal.500"
+              color="teal.600"
             >
               회원정보 수정
             </Heading>
@@ -242,19 +244,19 @@ export function MemberEdit() {
                 <FormLabel fontWeight="bold" color="gray.600">
                   전화번호
                 </FormLabel>
-                <Flex>
+                <Flex gap={1} alignItems="center">
                   <Input
                     type="number"
                     value={tel1}
                     onChange={(e) => setTel1(e.target.value)}
                   />
-                  -
+                  <FontAwesomeIcon icon={faMinus} size="sm" />
                   <Input
                     type="number"
                     value={tel2}
                     onChange={(e) => setTel2(e.target.value)}
                   />
-                  -
+                  <FontAwesomeIcon icon={faMinus} size="sm" />
                   <Input
                     type="number"
                     value={tel3}
@@ -309,17 +311,16 @@ export function MemberEdit() {
                   bg="gray.100"
                 />
               </FormControl>
-              <Center>
+              <Center gap={4}>
+                <Button onClick={handleSubmit} colorScheme="teal">
+                  저장
+                </Button>
                 <Button
                   onClick={() => navigate(`/member/${id}`)}
                   colorScheme="teal"
                   variant="outline"
-                  mr={4}
                 >
                   취소
-                </Button>
-                <Button onClick={handleSubmit} colorScheme="blue">
-                  확인
                 </Button>
               </Center>
             </VStack>

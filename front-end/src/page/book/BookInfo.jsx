@@ -149,9 +149,11 @@ export function BookInfo() {
       }}
       mt={10}
       bg="gray.50"
-      p={4}
+      p={5}
       borderRadius="lg"
       boxShadow="md"
+      border="1px"
+      borderColor="gray.300"
     >
       <VStack
         divider={<StackDivider borderColor="gray.200" />}
