@@ -239,8 +239,8 @@ public class BookService {
 
     public List<Book> getMyBooks(Authentication auth) {
         List<Book> myBooks = new ArrayList<>();
-
         List<Integer> idList = mapper.selectBookIdByMemberIdNotReturned(Integer.valueOf(auth.getName()));
+
         for (Integer id : idList) {
             Book book = get(id);
             BookLoan bookLoan = mapper.selectBookLoanByBookId(id);
@@ -250,5 +250,31 @@ public class BookService {
         }
 
         return myBooks;
+    }
+
+
+    public List<Book> getHistory(Authentication auth) {
+        List<Book> history = new ArrayList<>();
+        List<Integer> idList = mapper.selectBookIdByMemberId(Integer.valueOf(auth.getName()));
+
+        for (Integer id : idList) {
+            Book book = get(id);
+            BookLoan bookLoan = mapper.selectBookLoanByBookId(id);
+            book.setBookLoan(bookLoan);
+
+            history.add(book);
+        }
+
+        return history;
+    }
+
+    public void setBookList(List<Integer> idList, List<Book> bookList) {
+        for (Integer id : idList) {
+            Book book = get(id);
+            BookLoan bookLoan = mapper.selectBookLoanByBookId(id);
+            book.setBookLoan(bookLoan);
+
+            bookList.add(book);
+        }
     }
 }

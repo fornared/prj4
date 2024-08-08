@@ -15,7 +15,8 @@ import { BookInfo } from "./page/book/BookInfo.jsx";
 import { BookEdit } from "./page/book/BookEdit.jsx";
 import { Admin } from "./page/Admin.jsx";
 import { LibraryList } from "./page/library/LibraryList.jsx";
-import { Footer } from "./component/Footer.jsx"; // axios interceptor 설정
+import { Footer } from "./component/Footer.jsx";
+import { HistoryList } from "./HistoryList.jsx"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -61,6 +62,7 @@ const router = createBrowserRouter([
       { path: "book/:id", element: <BookInfo /> },
       { path: "book/:id/edit", element: <BookEdit /> },
       { path: "library", element: <LibraryList /> },
+      { path: "history", element: <HistoryList /> },
       { path: "admin", element: <Admin /> },
     ],
   },

@@ -49,6 +49,13 @@ export function Navbar() {
         >
           <FontAwesomeIcon icon={faBookOpen} /> 내서재
         </Button>
+        <Button
+          onClick={() => navigate("/history")}
+          variant="unstyled"
+          fontSize="lg"
+        >
+          대여내역
+        </Button>
         {account.isManager() && (
           <Button
             onClick={() => navigate("/admin")}

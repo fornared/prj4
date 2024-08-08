@@ -236,4 +236,13 @@ public interface BookMapper {
             LIMIT 1
             """)
     BookLoan selectBookLoanByBookId(Integer bookId);
+
+    @Select("""
+            SELECT b.id
+            FROM book b
+                JOIN book_loan bl ON b.id = bl.book_id
+            WHERE bl.member_id=#{memberId}
+            ORDER BY bl.id DESC
+            """)
+    List<Integer> selectBookIdByMemberId(Integer integer);
 }

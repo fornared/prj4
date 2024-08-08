@@ -107,4 +107,10 @@ public class BookController {
     public List<Book> getMyBooks(Authentication auth) {
         return service.getMyBooks(auth);
     }
+
+    @GetMapping("history")
+    @PreAuthorize("isAuthenticated()")
+    public List<Book> getHistory(Authentication auth) {
+        return service.getHistory(auth);
+    }
 }

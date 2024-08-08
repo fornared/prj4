@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Center,
   Flex,
   Heading,
@@ -21,12 +22,14 @@ import {
   Th,
   Tr,
   useDisclosure,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 export function LibraryList() {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +38,9 @@ export function LibraryList() {
   const [book, setBook] = useState(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpenReturn, onOpenReturn, onCloseReturn } = useDisclosure();
+  const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
     setIsLoading(true);
@@ -43,7 +49,16 @@ export function LibraryList() {
       .then((res) => {
         setBookList(res.data);
       })
-      .catch(() => {})
+      .catch(() => {
+        toast({
+          position: "top",
+          status: "warning",
+          description: "로그인 후 이용해주세요.",
+          duration: "2000",
+          isClosable: true,
+        });
+        navigate("/login");
+      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -60,6 +75,10 @@ export function LibraryList() {
 
   if (isLoading) {
     return <Spinner />;
+  }
+
+  function handleReturn() {
+    axios.put(`/api/book/${id}/return`).then().catch().finally();
   }
 
   return (
@@ -80,7 +99,11 @@ export function LibraryList() {
         </Heading>
       </Box>
       {bookList.length === 0 ? (
-        <Center></Center>
+        <Center>
+          <Button onClick={() => navigate(`/book/list`)}>
+            <FontAwesomeIcon icon={faPlus} size="xl" />
+          </Button>
+        </Center>
       ) : (
         <SimpleGrid
           minChildWidth="280px"
@@ -167,53 +190,103 @@ export function LibraryList() {
           <ModalHeader></ModalHeader>
           <ModalBody>
             {book && (
-              <VStack
-                divider={<StackDivider borderColor="gray.200" />}
-                spacing={4}
-                align="stretch"
-                mb={10}
-              >
-                <Box ml={1}>
-                  <Heading>{book.title}</Heading>
-                  <Text mt={1} fontSize="sm">
-                    {book.kdcMain} &gt; {book.kdcSub}
-                  </Text>
+              <>
+                <VStack
+                  divider={<StackDivider borderColor="gray.200" />}
+                  spacing={4}
+                  align="stretch"
+                  mb={10}
+                >
+                  <Box ml={1}>
+                    <Heading>{book.title}</Heading>
+                    <Text mt={1} fontSize="sm">
+                      {book.kdcMain} &gt; {book.kdcSub}
+                    </Text>
+                  </Box>
+                  <Flex>
+                    <Image
+                      boxSize="150px"
+                      objectFit="cover"
+                      src={book.bookImage.src}
+                    />
+                    <Table variant="unstyled">
+                      <Tbody>
+                        <Tr>
+                          <Th>저자</Th>
+                          <Td>{book.author}</Td>
+                        </Tr>
+                        <Tr>
+                          <Th>출판사</Th>
+                          <Td>{book.publisher}</Td>
+                        </Tr>
+                        <Tr>
+                          <Th>출판년도</Th>
+                          <Td>{book.publicationYear}</Td>
+                        </Tr>
+                        <Tr>
+                          <Th>ISBN</Th>
+                          <Td>{book.isbn}</Td>
+                        </Tr>
+                        <Tr>
+                          <Td>
+                            <Button
+                              isDisabled={true}
+                              colorScheme="teal"
+                              w="100%"
+                            >
+                              읽기
+                            </Button>
+                          </Td>
+                        </Tr>
+                      </Tbody>
+                    </Table>
+                  </Flex>
+                  <Box>
+                    <Heading fontSize="sm">소개</Heading>
+                    <Text>{book.description}</Text>
+                  </Box>
+                </VStack>
+                <Box textAlign="right">
+                  <Button onClick={onOpenReturn} colorScheme="teal">
+                    반납
+                  </Button>
                 </Box>
-                <Flex>
-                  <Image
-                    boxSize="150px"
-                    objectFit="cover"
-                    src={book.bookImage.src}
-                  />
-                  <Table variant="unstyled">
-                    <Tbody>
-                      <Tr>
-                        <Th>저자</Th>
-                        <Td>{book.author}</Td>
-                      </Tr>
-                      <Tr>
-                        <Th>출판사</Th>
-                        <Td>{book.publisher}</Td>
-                      </Tr>
-                      <Tr>
-                        <Th>출판년도</Th>
-                        <Td>{book.publicationYear}</Td>
-                      </Tr>
-                      <Tr>
-                        <Th>ISBN</Th>
-                        <Td>{book.isbn}</Td>
-                      </Tr>
-                    </Tbody>
-                  </Table>
-                </Flex>
-                <Box>
-                  <Heading fontSize="sm">소개</Heading>
-                  <Text>{book.description}</Text>
-                </Box>
-              </VStack>
+              </>
             )}
           </ModalBody>
-          <ModalFooter></ModalFooter>
+          <ModalFooter justifyContent="center">
+            {book && (
+              <Flex gap={10}>
+                <Text fontWeight="semibold" color="teal.700">
+                  대여일: {book.bookLoan.loanDate}
+                </Text>
+                <Text fontWeight="semibold" color="teal.700">
+                  반납예정: {book.bookLoan.dueDate}
+                </Text>
+              </Flex>
+            )}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isOpenReturn} onClose={onCloseReturn}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader>반납</ModalHeader>
+          <ModalBody>반납할까요?</ModalBody>
+          <ModalFooter gap={2}>
+            <Button onClick={handleReturn} colorScheme="blue" variant="outline">
+              확인
+            </Button>
+            <Button
+              onClick={onCloseReturn}
+              colorScheme="teal"
+              variant="outline"
+            >
+              취소
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
